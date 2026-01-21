@@ -1,0 +1,81 @@
+-- [[ N60 Ultimate: V341 - NEON PULSE EDITION ]] --
+-- مخصص لمحمد ساجر | زر مضيء ينبض | ضد الموت | ضد الطرد
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local run = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+-- تنظيف النسخ القديمة
+for _, v in pairs(game.CoreGui:GetChildren()) do
+    if v.Name:match("N60") then v:Destroy() end
+end
+
+local sg = Instance.new("ScreenGui", game.CoreGui)
+sg.Name = "N60_Neon_V341"
+
+local active = false
+local speed = 30
+
+-- إنشاء الزر المضيء N60
+local btn = Instance.new("TextButton", sg)
+btn.Name = "N60_Button"
+btn.Size = UDim2.new(0, 70, 0, 70)
+btn.Position = UDim2.new(1, -90, 1, -150)
+btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+btn.Text = "N60"
+btn.TextColor3 = Color3.fromRGB(0, 255, 255) -- لون نيوني
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 22
+Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0) -- دائري تماماً
+
+-- إضافة ظل خارجي (Glow) للزر
+local uiStroke = Instance.new("UIStroke", btn)
+uiStroke.Color = Color3.fromRGB(0, 255, 255)
+uiStroke.Thickness = 2
+uiStroke.Transparency = 0.5
+
+-- [تأثير النور القوي والخفيف]
+local function StartGlow()
+    spawn(function()
+        while btn and btn.Parent do
+            -- نور قوي
+            local tweenIn = TweenService:Create(uiStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0, Thickness = 5})
+            local textIn = TweenService:Create(btn, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextTransparency = 0})
+            tweenIn:Play()
+            textIn:Play()
+            task.wait(1)
+            -- نور خفيف
+            local tweenOut = TweenService:Create(uiStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.8, Thickness = 1})
+            local textOut = TweenService:Create(btn, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextTransparency = 0.5})
+            tweenOut:Play()
+            textOut:Play()
+            task.wait(1)
+        end
+    end)
+end
+StartGlow()
+
+btn.Activated:Connect(function()
+    active = not active
+    if active then
+        btn.TextColor3 = Color3.fromRGB(255, 0, 0) -- يقلب أحمر عند التشغيل
+        uiStroke.Color = Color3.fromRGB(255, 0, 0)
+    else
+        btn.TextColor3 = Color3.fromRGB(0, 255, 255) -- يرجع نيوني عند الإيقاف
+        uiStroke.Color = Color3.fromRGB(0, 255, 255)
+    end
+end)
+
+-- محرك الطيران المستقر (ضد الموت)
+run.Stepped:Connect(function()
+    local char = lp.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    
+    if hrp and hum and active then
+        local camCF = workspace.CurrentCamera.CFrame
+        hrp.Velocity = camCF.LookVector * speed + Vector3.new(0, 2, 0)
+        hum:ChangeState(Enum.HumanoidStateType.Running)
+    end
+end)
